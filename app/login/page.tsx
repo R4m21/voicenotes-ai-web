@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Mic } from 'lucide-react';
+import axios from 'axios';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,11 +16,26 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     // Simulate login delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    // await new Promise((resolve) => setTimeout(resolve, 800));
     // Store dummy auth state
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('userEmail', email);
-    router.push('/dashboard');
+    // localStorage.setItem('isAuthenticated', 'true');
+    // localStorage.setItem('userEmail', email);
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        {
+          emailId: email,
+          password,
+        },
+        { withCredentials: true },
+      );
+      router.push("/dashboard");
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert('Login failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDemoLogin = async () => {

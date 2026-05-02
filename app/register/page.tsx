@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Mic } from 'lucide-react';
+import axios from 'axios';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -15,24 +16,40 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters');
+      setError("Password must be at least 8 characters");
       return;
     }
 
     setIsLoading(true);
-    // Simulate register delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('userEmail', email);
-    router.push('/dashboard');
+    // // Simulate register delay
+    // await new Promise((resolve) => setTimeout(resolve, 800));
+    // localStorage.setItem('isAuthenticated', 'true');
+    // localStorage.setItem('userEmail', email);
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
+        {
+          emailId: email,
+          password,
+        },
+        { withCredentials: true },
+      );
+
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Registration failed:", error);
+      setError("Registration failed");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
