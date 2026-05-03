@@ -8,6 +8,8 @@ import axios from 'axios';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -37,13 +39,15 @@ export default function RegisterPage() {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
         {
+          firstName,
+          lastName,
           emailId: email,
           password,
         },
         { withCredentials: true },
       );
 
-      router.push("/dashboard");
+      router.replace("/dashboard");
     } catch (error) {
       console.error("Registration failed:", error);
       setError("Registration failed");
@@ -76,6 +80,34 @@ export default function RegisterPage() {
               </div>
             )}
 
+            <div className="space-y-2">
+              <label htmlFor="firstName" className="block text-sm font-medium text-foreground">
+                Firstname
+              </label>
+              <input
+                id="firstName"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="john"
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="lastName" className="block text-sm font-medium text-foreground">
+                Lastname
+              </label>
+              <input
+                id="lastName"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="doe"
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium text-foreground">
                 Email
