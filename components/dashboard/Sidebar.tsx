@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Mic, List, Plus, Search, BarChart3, LogOut } from 'lucide-react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const navigation = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -13,6 +15,23 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
+        {},
+        {
+          withCredentials: true,
+        },
+      );
+
+      router.replace('/login');
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <aside className="w-64 border-r border-border bg-muted/30 h-screen flex flex-col">
@@ -53,7 +72,7 @@ export function Sidebar() {
 
       {/* Logout */}
       <div className="p-3 border-t border-border">
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
           <LogOut size={20} />
           <span>Logout</span>
         </button>

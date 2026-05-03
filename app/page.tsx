@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
     // Check if user is authenticated
-    const isAuthenticated = typeof window !== 'undefined' && 
-      localStorage.getItem('isAuthenticated') === 'true';
-    
+    const isAuthenticated =
+      typeof window !== "undefined" && document.cookie.includes("token=");
+
     if (isAuthenticated) {
-      router.push('/dashboard');
+      router.replace("/dashboard");
     } else {
-      router.push('/login');
+      router.replace("/login");
     }
   }, [router]);
 
