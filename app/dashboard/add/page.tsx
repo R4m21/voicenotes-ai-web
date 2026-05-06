@@ -62,27 +62,31 @@ export default function AddNotePage() {
       },
     );
 
-    console.log(res);
-
     const reader = res.body?.getReader();
     const decoder = new TextDecoder("utf-8");
-    console.log(reader);
-    
 
-    let text = "";
+    let fullText = "";
+    setTranscription("");
 
     while (true) {
       const { done, value } = await reader!.read();
       if (done) break;
 
-      const chunk = decoder.decode(value);
-      text += chunk;
-
-      console.log(text);
-
-      setTranscription((prev) => prev + chunk); // 🔥 typing effect
+      const chunk = decoder.decode(value, { stream: true });
+      fullText += chunk;
     }
 
+    let index = 0;
+
+    const interval = setInterval(() => {
+      setTranscription(fullText.slice(0, index));
+
+      index++;
+
+      if (index > fullText.length) {
+        clearInterval(interval);
+      }
+    }, 10);
     setShowAnalysis(true);
   };
 
