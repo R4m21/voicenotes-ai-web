@@ -51,21 +51,39 @@ export default function AddNotePage() {
     // Start transcription
 
     const formData = new FormData();
-    formData.append("file", audioBlob, `recording.webm`);
+    formData.append("audio", audioBlob);
 
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/transcribe`, {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/ai/transcribe`,
+      {
         method: "POST",
         body: formData,
-      });
-      const data = await res.json();
+        credentials: "include",
+      },
+    );
 
-      setTranscription(data.transcription);
-      setShowAnalysis(true);
-    } catch (error) {
-      console.error(error);
-      alert(`Transcription failed: ${error}`);
+    console.log(res);
+
+    const reader = res.body?.getReader();
+    const decoder = new TextDecoder("utf-8");
+    console.log(reader);
+    
+
+    let text = "";
+
+    while (true) {
+      const { done, value } = await reader!.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      text += chunk;
+
+      console.log(text);
+
+      setTranscription((prev) => prev + chunk); // 🔥 typing effect
     }
+
+    setShowAnalysis(true);
   };
 
   const handleSave = async () => {
