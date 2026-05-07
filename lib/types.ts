@@ -25,3 +25,9 @@ export interface NotesContextType {
   deleteNote: (id: string) => Promise<void>;
   searchNotes: (query: string) => Promise<Note[]>;
 }
+
+export interface AiAnalysis {
+  summary: string;
+  actionItems: ActionItem[];
+  keywords: string[];
+}

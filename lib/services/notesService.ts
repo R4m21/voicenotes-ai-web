@@ -36,7 +36,7 @@ export const notesService = {
       updatedAt: new Date(),
     };
 
-    notesData.unshift(newNote);
+    // notesData.unshift(newNote);
     return newNote;
   },
 

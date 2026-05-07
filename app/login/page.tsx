@@ -41,10 +41,26 @@ export default function LoginPage() {
   const handleDemoLogin = async () => {
     setIsLoading(true);
     // Simulate login delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('userEmail', 'demo@voicenotes.com');
-    router.push('/dashboard');
+    // await new Promise((resolve) => setTimeout(resolve, 800));
+    // localStorage.setItem('isAuthenticated', 'true');
+    // localStorage.setItem('userEmail', 'demo@voicenotes.com');
+
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        {
+          emailId: process.env.NEXT_PUBLIC_DEMO_EMAIL,
+          password: process.env.NEXT_PUBLIC_DEMO_PASSWORD,
+        },
+        { withCredentials: true },
+      );
+      router.replace("/dashboard");
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("Login failed");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

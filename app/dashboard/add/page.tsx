@@ -11,6 +11,8 @@ import { SummarySection } from '@/components/notes/SummarySection';
 import { ActionItemsSection } from '@/components/notes/ActionItemsSection';
 import { KeywordsSection } from '@/components/notes/KeywordsSection';
 import { Save, X } from 'lucide-react';
+import axios from 'axios';
+import { AiAnalysis } from '@/lib/types';
 
 const MOCK_TRANSCRIPTION = `Discussed the upcoming Q1 features with the team. Key points: we need to prioritize the search optimization feature that customers have been asking for. The current search takes too long for large datasets.`;
 
@@ -33,6 +35,7 @@ export default function AddNotePage() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [transcription, setTranscription] = useState('');
+  const [aiAnalysis, setAiAnalysis] = useState<AiAnalysis | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -41,6 +44,25 @@ export default function AddNotePage() {
     setRecordingTime(0);
     setTranscription('');
     setShowAnalysis(false);
+  };
+
+  const aiAnalyser = async (text: string) => {
+    setShowAnalysis(false);
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/ai/analyze`,
+        { text },
+        { withCredentials: true },
+      );
+
+      setTitle(res?.data?.title || '');     
+      setAiAnalysis(res.data);
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      alert('Analysis failed');
+    } finally {
+      setShowAnalysis(true);
+    }
   };
 
   const handleStopRecording = async (audioBlob: Blob) => {
@@ -87,7 +109,8 @@ export default function AddNotePage() {
         clearInterval(interval);
       }
     }, 10);
-    setShowAnalysis(true);
+
+    await aiAnalyser(fullText);
   };
 
   const handleSave = async () => {
@@ -101,9 +124,9 @@ export default function AddNotePage() {
       await createNote({
         title,
         transcription,
-        summary: MOCK_SUMMARY,
-        actionItems: MOCK_ACTIONS,
-        keywords: MOCK_KEYWORDS,
+        summary: aiAnalysis?.summary ?? '',
+        actionItems: aiAnalysis?.actionItems ?? [],
+        keywords: aiAnalysis?.keywords ?? [],
       });
       router.push('/dashboard/notes');
     } catch (error) {
@@ -193,9 +216,9 @@ export default function AddNotePage() {
         {/* AI Analysis Sections */}
         {showAnalysis && (
           <div className="space-y-4 mb-6">
-            <SummarySection summary={MOCK_SUMMARY} />
-            <ActionItemsSection actionItems={MOCK_ACTIONS} />
-            <KeywordsSection keywords={MOCK_KEYWORDS} />
+            <SummarySection summary={aiAnalysis?.summary ?? ''} />
+            <ActionItemsSection actionItems={aiAnalysis?.actionItems ?? []} />
+            <KeywordsSection keywords={aiAnalysis?.keywords ?? []} />
           </div>
         )}
 
