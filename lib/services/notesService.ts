@@ -49,11 +49,11 @@ export const notesService = {
     // return newNote;
 
     try {
-      const res = await DataService.post("/notes", note);
-      return res.data;
+      const res = await DataService.post<BackendNote>("/notes", note);
+      const data = normalizeNotes([res.data]);
+      return data[0];
     } catch (error) {
-      handleApiError(error);
-      throw error;
+      return handleApiError(error);
     }
   },
 
@@ -104,7 +104,6 @@ export const notesService = {
       await DataService.delete(`/notes/${id}`);
     } catch (error) {
       handleApiError(error);
-      throw error;
     }
   },
 
