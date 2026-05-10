@@ -31,3 +31,8 @@ export interface AiAnalysis {
   actionItems: ActionItem[];
   keywords: string[];
 }
+
+export type BackendNote = Omit<Note, "id"> & {
+  _id: string;
+  userId: string;
+};

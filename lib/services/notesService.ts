@@ -1,5 +1,7 @@
-import { Note } from '@/lib/types';
-import { mockNotes } from '@/lib/data/mockNotes';
+import { Note, BackendNote } from "@/lib/types";
+import { mockNotes } from "@/lib/data/mockNotes";
+import DataService, { handleApiError } from "./axiosInstance";
+import { normalizeNotes } from "../utils";
 
 // This service layer is designed to work with mock data initially
 // and can be easily swapped for real API calls in production
@@ -13,9 +15,16 @@ export const notesService = {
    * @returns Promise resolving to array of notes
    */
   async getNotes(): Promise<Note[]> {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return notesData;
+    // // Simulate API delay
+    // await new Promise((resolve) => setTimeout(resolve, 300));
+    // return notesData;
+
+    try {
+      const { data } = await DataService.get<BackendNote[]>("/notes");
+      return normalizeNotes(data);
+    } catch (error) {
+      return handleApiError(error);
+    }
   },
 
   /**
@@ -24,20 +33,28 @@ export const notesService = {
    * @returns Promise resolving to created note with id and timestamps
    */
   async createNote(
-    note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>
+    note: Omit<Note, "id" | "createdAt" | "updatedAt">,
   ): Promise<Note> {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // // Simulate API delay
+    // await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const newNote: Note = {
-      ...note,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    // const newNote: Note = {
+    //   ...note,
+    //   id: Date.now().toString(),
+    //   createdAt: new Date(),
+    //   updatedAt: new Date(),
+    // };
 
     // notesData.unshift(newNote);
-    return newNote;
+    // return newNote;
+
+    try {
+      const res = await DataService.post("/notes", note);
+      return res.data;
+    } catch (error) {
+      handleApiError(error);
+      throw error;
+    }
   },
 
   /**
@@ -46,10 +63,7 @@ export const notesService = {
    * @param updates Partial note updates
    * @returns Promise resolving to updated note
    */
-  async updateNote(
-    id: string,
-    updates: Partial<Note>
-  ): Promise<Note> {
+  async updateNote(id: string, updates: Partial<Note>): Promise<Note> {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 300));
 
@@ -77,14 +91,21 @@ export const notesService = {
    */
   async deleteNote(id: string): Promise<void> {
     // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    // await new Promise((resolve) => setTimeout(resolve, 300));
 
-    const noteIndex = notesData.findIndex((note) => note.id === id);
-    if (noteIndex === -1) {
-      throw new Error('Note not found');
+    // const noteIndex = notesData.findIndex((note) => note.id === id);
+    // if (noteIndex === -1) {
+    //   throw new Error('Note not found');
+    // }
+
+    // notesData.splice(noteIndex, 1);
+
+    try {
+      await DataService.delete(`/notes/${id}`);
+    } catch (error) {
+      handleApiError(error);
+      throw error;
     }
-
-    notesData.splice(noteIndex, 1);
   },
 
   /**
